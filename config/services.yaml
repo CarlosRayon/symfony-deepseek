@@ -1,6 +1,7 @@
 parameters:
     deepseek_api_url: "%env(DEEP_SEEK_API_URL)%"
     deepseek_api_key: "%env(DEEP_SEEK_API_KEY)%"
+    deepseek_api_timeout: "%env(DEEP_SEEK_API_TIMEOUT)%"
     
 services:
     # default configuration for services in *this* file

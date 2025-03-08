@@ -15,7 +15,7 @@ Tenemos que tener algún "TOP UP" para pagado
 1. Clona el repositorio:
 
     ```sh
-    git clone <URL_DEL_REPOSITORIO>
+    git clone https://github.com/CarlosRayon/symfony-deepseek
     cd symfony-deepseek
     ```
 

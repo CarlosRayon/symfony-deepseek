@@ -10,6 +10,7 @@ class DeepSeekService
 {
     private string $apiKey;
     private string $apiUrl;
+    private int $timeout;
 
     private array $responseCompleted;
     private string $responseContent;
@@ -19,6 +20,7 @@ class DeepSeekService
     ) {
         $this->apiUrl = $this->parameter->get('deepseek_api_url');
         $this->apiKey = $this->parameter->get('deepseek_api_key');
+        $this->timeout =  $this->parameter->get('deepseek_api_timeout');
     }
 
     public function getDataFromDeepSeek(string $content): self
@@ -26,6 +28,7 @@ class DeepSeekService
         $client = DeepSeekClient::build(
             apiKey: $this->apiKey,
             baseUrl: $this->apiUrl,
+            timeout: $this->timeout,
             clientType:'symfony'
         );
         // $response = $client->getModelsList()->run();
