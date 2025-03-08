@@ -3,24 +3,30 @@
 namespace App\Controller;
 
 use App\Service\DeepSeekService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class DeepSearchController extends AbstractController
 {
-    private $deepSeekService;
-
-    public function __construct(DeepSeekService $deepSeekService)
+    #[Route('/', name: 'home')]
+    public function index(Request $request, DeepSeekService $deepSeekService): Response
     {
-        $this->deepSeekService = $deepSeekService;
-    }
+        $userRequest = '';
+        $responseContent = 'Pregunta algo!';
 
-    #[Route('/deepseek', name: 'deepseek')]
-    public function index(): Response
-    {
-        $data = $this->deepSeekService->getDataFromDeepSeek();
+        if ($request->isMethod('POST')) {
+            $userRequest = $request->request->get('user_request');
 
-        return $this->json($data);
+            if (!empty($userRequest)) {
+                $responseContent = $deepSeekService->getDataFromDeepSeek($userRequest)->getResponseContent();
+            }
+        }
+
+        return $this->render('home/home.html.twig', [
+            'user_request' => $userRequest,
+            'response_content' => $responseContent,
+        ]);
     }
 }

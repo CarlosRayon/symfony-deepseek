@@ -2,44 +2,52 @@
 
 namespace App\Service;
 
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use DeepSeek\DeepSeekClient;
+use DeepSeek\Enums\Models;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class DeepSeekService
 {
-    private const API_URL = 'DEEP_SEEK_API_URL';
-    private const API_KEY = 'DEEP_SEEK_API_KEY';
+    private string $apiKey;
+    private string $apiUrl;
 
-    private $httpClient;
-    private $apiKey;
-    private $apiUrl;
+    private array $responseCompleted;
+    private string $responseContent;
 
-    public function __construct(HttpClientInterface $httpClient)
-    {
-        $this->httpClient = $httpClient;
-        $this->apiUrl = $_ENV[self::API_URL];
-        $this->apiKey = $_ENV[self::API_KEY];
+    public function __construct(
+        private ParameterBagInterface $parameter
+    ) {
+        $this->apiUrl = $this->parameter->get('deepseek_api_url');
+        $this->apiKey = $this->parameter->get('deepseek_api_key');
     }
 
-    public function getDataFromDeepSeek(): array
+    public function getDataFromDeepSeek(string $content): self
     {
-        $response = $this->httpClient->request('POST', $this->apiUrl, [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->apiKey,
-            ],
-            'json' => [
-                'model' => 'deepseek-chat',
-                'messages' => [
-                    ['role' => 'system', 'content' => 'You are a helpful assistant'],
-                    ['role' => 'user', 'content' => 'Hello'],
-                ],
-            ],
-        ]);
+        $client = DeepSeekClient::build(
+            apiKey: $this->apiKey,
+            baseUrl: $this->apiUrl,
+            clientType:'symfony'
+        );
+        // $response = $client->getModelsList()->run();
+        $client->setTemperature(1.3); // https://api-docs.deepseek.com/quick_start/parameter_settings (default 1.3)
+        $client->withModel(Models::CHAT->value); // Default
 
-        // if ($response->getStatusCode() !== 200) {
-        //     throw new \Exception('Failed to retrieve data from DeepSeek.');
-        // }
+        $response = $client->query($content)->run();
 
-        return $response->toArray();
+        $this->handlerDeepSeekResponse($response);
+
+        return $this;
+    }
+
+    public function getResponseContent(): string
+    {
+        return $this->responseCompleted['choices'][0]['message']['content'];
+    }
+
+    private function handlerDeepSeekResponse(string $response): self
+    {
+        $this->responseCompleted = json_decode($response, true);
+
+        return $this;
     }
 }

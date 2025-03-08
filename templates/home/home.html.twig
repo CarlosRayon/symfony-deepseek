@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    <style></style>
+{% endblock %}
+{% block body %}
+    <h1>Pregunta a DeepSeek</h1>
+    <form method="post" action="{{ path('home') }}" id="deepseek-form" class="form">
+        <textarea id="user_request" name="user_request" rows="10" cols="50">{{ user_request}}</textarea>
+        <button type="submit" class="btn">Submit</button>
+    </form>
+
+    <div class="spinner" id="spinner"></div>
+
+    <div class="response">
+        {{ response_content }}
+    </div>
+
+    <script>
+        document.getElementById('deepseek-form').addEventListener('submit', function () {
+            document.getElementById('spinner').style.display = 'block';
+        });
+    </script>
+{% endblock %}
